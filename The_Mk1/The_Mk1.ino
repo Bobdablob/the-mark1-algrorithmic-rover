@@ -1,23 +1,12 @@
-/* Ardumoto Example Sketch
-  by: Jim Lindblom
-  date: November 8, 2013
-  license: Public domain. Please use, reuse, and modify this
-  sketch!
+#include <SimpleDHT.h>
+// for DHT11,
+//      VCC: 5V or 3V
+//      GND: GND
+//      DATA: 2
+const int pinDHT11 = 6;
+SimpleDHT11 dht11;
 
-  Adapted to v20 hardware by: Marshall Taylor
-  date: March 31, 2017
-
-  Three useful functions are defined:
-    setupArdumoto() -- Setup the Ardumoto Shield pins
-    driveArdumoto([motor], [direction], [speed]) -- Drive [motor]
-      (0 for A, 1 for B) in [direction] (0 or 1) at a [speed]
-      between 0 and 255. It will spin until told to stop.
-    stopArdumoto([motor]) -- Stop driving [motor] (0 or 1).
-
-  setupArdumoto() is called in the setup().
-  The loop() demonstrates use of the motor driving functions.
-*/
-
+//MOTOR SETUP(BEGIN)
 // Clockwise and counter-clockwise definitions.
 // Depending on how you wired your motors, you may need to swap.
 #define FORWARD 0
@@ -40,16 +29,30 @@
 //#define DIRB 7 // Direction control for motor B
 //#define PWMB 10 // PWM control (speed) for motor B
 
+//MOTOR SETUP(END)
 
 void setup() {
-  setupArdumoto(); // Set all pins as outputs
+   Serial.begin(115200);
 }
 
 void loop() {
-  // Drive both
-  driveArdumoto(MOTOR_A, FORWARD, 255);  // Motor A at max speed.
-  driveArdumoto(MOTOR_B, FORWARD, 255);  // Motor B at max speed.
-  delay(1000);  // Drive forward for a second
+
+  // MOISTURE DEVICE(START)
+
+  // start working...
+  Serial.println("=================================");
+  Serial.println("Sample DHT11...");
+
+  // read without samples.
+  int temperature2 = readDHTTemperature();
+  int humidity2 = readDHTHumidity();
+
+  Serial.print("Sample OK: ");
+  Serial.print((int)temperature2); Serial.print(" *C, ");
+  Serial.print((int)humidity2); Serial.println(" %");
+
+  //MOISTURE DEVICE(END)
+
 }
 
 // driveArdumoto drives 'motor' in 'dir' direction at 'spd' speed
@@ -84,4 +87,22 @@ void setupArdumoto() {
   digitalWrite(PWMB, LOW);
   digitalWrite(DIRA, LOW);
   digitalWrite(DIRB, LOW);
+}
+
+int readDHTTemperature(){
+  byte temperature = 0;
+  byte humidity = 0;
+  if (dht11.read(pinDHT11, &temperature, &humidity, NULL)) {
+    Serial.print("Read DHT11 failed.");
+  }
+  return temperature;
+}
+
+int readDHTHumidity(){
+  byte temperature = 0;
+  byte humidity = 0;
+  if (dht11.read(pinDHT11, &temperature, &humidity, NULL)) {
+    Serial.print("Read DHT11 failed.");
+  }
+  return humidity;
 }
