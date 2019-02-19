@@ -8,6 +8,12 @@ long duration;
 int distance;
 Servo myServo; // Creates a servo object for controlling the servo motor
 
+long previousMillis = 0;        // will store last time LED was updated
+
+// the follow variables is a long because the time, measured in miliseconds,
+// will quickly become a bigger number than can be stored in an int.
+long interval = 1000;           // interval at which to blink (milliseconds)
+
 // Clockwise and counter-clockwise definitions.
 // Depending on how you wired your motors, you may need to swap.
 #define FORWARD 0
@@ -40,6 +46,32 @@ void setup() {
 }
 
 void loop() {
+
+  // Swing the radar arm
+  // Calculate Distance
+  // Check if new prediction on direction needs to be made
+  // Find next direction to go:
+  // -- If there's no objects within 40 cm, then drive at full speed towards the objective.
+  // -- If there's anything within 40 cm, then reduce speed and start using the averaging algorithim.
+  // -- If the averaging algorithim recommends a direction that is also facing
+  // -- towards the closest object, then backup and turn in a random direction.
+  // Start moving motors in that new direction
+
+  unsigned long currentMillis = millis(); //
+
+  if(currentMillis - previousMillis > interval) {
+    // save the last time you blinked the LED
+    previousMillis = currentMillis;
+
+    // if the LED is off turn it on and vice-versa:
+    if (ledState == LOW)
+      ledState = HIGH;
+    else
+      ledState = LOW;
+
+    // set the LED with the ledState of the variable:
+    digitalWrite(ledPin, ledState);
+
   // rotates the servo motor from 15 to 165 degrees
   for(int i=15;i<=165;i++){
     myServo.write(i);
