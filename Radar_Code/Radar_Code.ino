@@ -1,5 +1,5 @@
 // Includes the Servo library
-#include <Servo.h>.
+#include <Servo.h>
 // Defines Tirg and Echo pins of the Ultrasonic Sensor
 const int trigPin = 10;
 const int echoPin = 11;
@@ -8,11 +8,20 @@ long duration;
 int distance;
 Servo myServo; // Creates a servo object for controlling the servo motor
 
-long previousMillis = 0;        // will store last time LED was updated
+long previousSwing = 0;        // will store last time LED was updated
+long previousUpdate = 0;        // will store last time LED was updated
 
 // the follow variables is a long because the time, measured in miliseconds,
 // will quickly become a bigger number than can be stored in an int.
-long interval = 1000;           // interval at which to blink (milliseconds)
+long updateInterval = 30;           // interval at which to blink (milliseconds)
+long swingInterval = 30;
+
+int swingAngles[] = {15,30,45,60,75,90,105,120,135,150,165};
+int distanceAngles[10];
+
+int currentServo = 0;
+
+int forwardsSwing = 1;
 
 // Clockwise and counter-clockwise definitions.
 // Depending on how you wired your motors, you may need to swap.
@@ -46,6 +55,25 @@ void setup() {
 }
 
 void loop() {
+
+  if(currentMillis - previousSwing > swingInterval) {
+    previousSwing = currentMillis;
+
+    myServo.write(swingAngles[currentServo]);
+
+    if (forwardsSwing == 1){
+      currentServo = currentServo + 1;
+    } else if (forwardsSwing == 0) {
+      currentServo = currentServo - 1;
+    } else {
+      currentServo = currentServo;
+    }
+
+    if (currentServo >= 9){
+      forwardsSwing = 0;
+    }
+
+  }
 
   // Swing the radar arm
   // Calculate Distance
