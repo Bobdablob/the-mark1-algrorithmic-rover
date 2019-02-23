@@ -14,11 +14,11 @@ long previousUpdate = 0;        // will store last time LED was updated
 // the follow variables is a long because the time, measured in miliseconds,
 // will quickly become a bigger number than can be stored in an int.
 long updateInterval = 30;           // interval at which to blink (milliseconds)
-long swingInterval = 30;
+long swingInterval = 100;
 
 int swingAngles[] = {15,30,45,60,75,90,105,120,135,150,165};
 int angleArrayLength = sizeof(swingAngles) / sizeof(swingAngles[0]);
-int distanceAngles[angleArrayLength];
+int distanceAngles[10];
 
 int currentServo = 0;
 
@@ -56,24 +56,27 @@ void setup() {
 }
 
 void loop() {
-
+  unsigned long currentMillis = millis();
+  
   if(currentMillis - previousSwing > swingInterval) { // Check's if it's time to swing.
     previousSwing = currentMillis; // Sets NOW to the last time it was swung.
 
-    if (currentServo >= angleArrayLength){ // Checks if we've reached the end of the angle array.
+    if (currentServo >= angleArrayLength - 1){ // Checks if we've reached the end of the angle array.
       forwardsSwing = 0; // Sets swing direction to backwards
     } else if (currentServo == 0) { // Checks if we've reached the beginning of the angle array.
       forwardsSwing = 1; // Sets swing direction to forwards
     } else {
-      Serial.println("ERROR, angle array overrun.") // Error state
+      Serial.println("ERROR, angle array overrun."); // Error state
     }
+
+    Serial.println(currentServo);
 
     if (forwardsSwing == 1){
       currentServo = currentServo + 1;
     } else if (forwardsSwing == 0) {
       currentServo = currentServo - 1;
     } else {
-      Serial.println("ERROR, forwards swing state not 0 or 1.") // Error state
+      Serial.println("ERROR, forwards swing state not 0 or 1."); // Error state
     }
 
     myServo.write(swingAngles[currentServo]); // Assign the current angle to the servo.
