@@ -17,7 +17,8 @@ long updateInterval = 30;           // interval at which to blink (milliseconds)
 long swingInterval = 30;
 
 int swingAngles[] = {15,30,45,60,75,90,105,120,135,150,165};
-int distanceAngles[10];
+int angleArrayLength = sizeof(swingAngles) / sizeof(swingAngles[0]);
+int distanceAngles[angleArrayLength];
 
 int currentServo = 0;
 
@@ -56,72 +57,29 @@ void setup() {
 
 void loop() {
 
-  if(currentMillis - previousSwing > swingInterval) {
-    previousSwing = currentMillis;
+  if(currentMillis - previousSwing > swingInterval) { // Check's if it's time to swing.
+    previousSwing = currentMillis; // Sets NOW to the last time it was swung.
 
-    myServo.write(swingAngles[currentServo]);
+    if (currentServo >= angleArrayLength){ // Checks if we've reached the end of the angle array.
+      forwardsSwing = 0; // Sets swing direction to backwards
+    } else if (currentServo == 0) { // Checks if we've reached the beginning of the angle array.
+      forwardsSwing = 1; // Sets swing direction to forwards
+    } else {
+      Serial.println("ERROR, angle array overrun.") // Error state
+    }
 
     if (forwardsSwing == 1){
       currentServo = currentServo + 1;
     } else if (forwardsSwing == 0) {
       currentServo = currentServo - 1;
     } else {
-      currentServo = currentServo;
+      Serial.println("ERROR, forwards swing state not 0 or 1.") // Error state
     }
 
-    if (currentServo >= 9){
-      forwardsSwing = 0;
-    }
+    myServo.write(swingAngles[currentServo]); // Assign the current angle to the servo.
 
   }
-
-  // Swing the radar arm
-  // Calculate Distance
-  // Check if new prediction on direction needs to be made
-  // Find next direction to go:
-  // -- If there's no objects within 40 cm, then drive at full speed towards the objective.
-  // -- If there's anything within 40 cm, then reduce speed and start using the averaging algorithim.
-  // -- If the averaging algorithim recommends a direction that is also facing
-  // -- towards the closest object, then backup and turn in a random direction.
-  // Start moving motors in that new direction
-
-  unsigned long currentMillis = millis(); //
-
-  if(currentMillis - previousMillis > interval) {
-    // save the last time you blinked the LED
-    previousMillis = currentMillis;
-
-    // if the LED is off turn it on and vice-versa:
-    if (ledState == LOW)
-      ledState = HIGH;
-    else
-      ledState = LOW;
-
-    // set the LED with the ledState of the variable:
-    digitalWrite(ledPin, ledState);
-
-  // rotates the servo motor from 15 to 165 degrees
-  for(int i=15;i<=165;i++){
-    myServo.write(i);
-    delay(30);
-    distance = calculateDistance();// Calls a function for calculating the distance measured by the Ultrasonic sensor for each degree
-
-    Serial.print(i); // Sends the current degree into the Serial Port
-    Serial.print(","); // Sends addition character right next to the previous value needed later in the Processing IDE for indexing
-    Serial.print(distance); // Sends the distance value into the Serial Port
-    Serial.print("."); // Sends addition character right next to the previous value needed later in the Processing IDE for indexing
-  }
-
-  // Repeats the previous lines from 165 to 15 degrees
-  for(int i=165;i>15;i--){
-    myServo.write(i);
-    delay(30);
-    distance = calculateDistance();
-    Serial.print(i);
-    Serial.print(",");
-    Serial.print(distance);
-    Serial.print(".");
-  }
+  
 }
 // Function for calculating the distance measured by the Ultrasonic sensor
 int calculateDistance(){
